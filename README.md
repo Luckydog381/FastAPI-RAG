@@ -1,5 +1,4 @@
-```
-# 🧠 FastAPI-RAG
+## 🧠 FastAPI-RAG
 
 A powerful and lightweight project integrating **FastAPI**, **pgvector**, and **LangChain** for vector-based document operations.
 
