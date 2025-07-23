@@ -78,10 +78,3 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 - Replace `your_api_key_here` with your actual API key.
 
 ---
-
-## 📄 License
-
-This project is licensed under the **MIT License**.
-```
-
-Let me know if you’d like to add project badges, contribution guidelines, or usage examples next—those can make it even more impressive!
