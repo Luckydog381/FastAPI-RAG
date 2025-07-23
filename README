@@ -1,0 +1,84 @@
+# FastAPI-RAG
+
+FastAPI-RAG is a project that integrates FastAPI with pgvector for vector-based operations and LangChain for document management.
+
+---
+
+## Prerequisites
+
+1. **Install PostgreSQL with pgvector extension**:
+   - Follow the [pgvector installation guide](https://github.com/pgvector/pgvector) to install and configure pgvector in your PostgreSQL database.
+   - Ensure the `pgvector` extension is enabled in your database.
+
+2. **Set up `.env` file**:
+   - Create a `.env` file in the `app/` directory based on the `env.example` file.
+   - Example `.env`:
+     ```plaintext
+     GEMINI_API_KEY=your_api_key_here
+     EMBEDDING_MODEL=text-embedding-005
+     EMBEDDING_SIZE=768
+     LLM_MODEL=gemini-2.0-flash
+     PG_VECTOR_DB_NAME=vector_db
+     PG_VECTOR_DB_USERNAME=postgres
+     PG_VECTOR_DB_PASSWORD=12345
+     PG_VECTOR_DB_HOST=localhost
+     PG_VECTOR_DB_PORT=5432
+     ```
+
+---
+
+## Installation
+
+1. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   ```
+
+2. **Activate the virtual environment**:
+   - On Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+   - On macOS/Linux:
+     ```bash
+     source venv/bin/activate
+     ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
+## Running the Project
+
+1. **Start the FastAPI application**:
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 8000
+   ```
+
+2. **Access the API**:
+   - Open your browser or API client and navigate to:
+     ```
+     http://localhost:8000
+     ```
+
+3. **Interactive API Documentation**:
+   - Visit:
+     ```
+     http://localhost:8000/docs
+     ```
+
+---
+
+## Notes
+
+- Ensure your PostgreSQL database is running and properly configured with the pgvector extension.
+- Replace `your_api_key_here` in the `.env` file with your actual API key.
+
+---
+
+## License
+
+This project is licensed under the MIT License.

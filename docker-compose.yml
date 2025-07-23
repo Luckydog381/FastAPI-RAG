@@ -1,0 +1,26 @@
+services:
+  pgvector-db:
+    image: ankane/pgvector
+    container_name: pgvector-db
+    restart: always
+    environment:
+      POSTGRES_DB: vector_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  langchain-app:
+    build: .
+    container_name: langchain-app
+    env_file:
+      - ./app/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - pgvector-db
+
+volumes:
+  pgdata:

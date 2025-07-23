@@ -1,0 +1,11 @@
+fastapi[standard]
+# psycopg2
+psycopg2-binary
+python-dotenv
+pydantic-settings
+uvicorn
+langchain
+langchain[google-genai]
+langchain-community
+langchain-docling
+langchain-postgres
