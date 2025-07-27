@@ -27,7 +27,7 @@ chat_db = PostgresDB(
 )
 
 @router.post("/")
-async def chat_stream(user_query: str, session_id: int = Query(..., description="Chat session ID (required)")):
+async def chat_stream(user_query: str, session_id: int = Query(..., description="Chat session ID (required)"), top_k:int = Query(5, ge=1, le=20, description="Number of top documents to retrieve (default: 5)")):
     try:
         start_time = time.time()
 
@@ -39,8 +39,10 @@ async def chat_stream(user_query: str, session_id: int = Query(..., description=
 
         chat_db.add_message(session_id, user_query, sender="user")
 
-        docs = manager.vectorstore.similarity_search(user_query)
-        context = "\n\n".join([doc.page_content for doc in docs]) if docs else "No relevant documents found."
+        # Retrieve and rerank documents
+        docs = await manager.vectorstore.asimilarity_search(user_query, k=25)
+        reranked_docs = await manager.rerank_with_gemini(query = user_query, documents = docs, top_n = top_k)
+        context = "\n\n".join([doc.page_content for doc in reranked_docs]) if reranked_docs else "No relevant documents found."
 
         prior = chat_db.get_messages(session_id)
         messages = [("system", "Use the following context to answer the question.")]

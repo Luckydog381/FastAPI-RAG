@@ -10,6 +10,8 @@ from langchain_community.document_loaders import (
     UnstructuredMarkdownLoader,
     UnstructuredWordDocumentLoader
 )
+from langchain.retrievers.contextual_compression import ContextualCompressionRetriever
+from langchain_community.document_compressors.rankllm_rerank import RankLLMRerank
 from app.config import config_settings
 
 class LangchainDocManager:
@@ -23,6 +25,7 @@ class LangchainDocManager:
                 embeddings=self.embeddings,
                 connection=pg_connection_str,
                 collection_name=collection_name,
+                async_mode=True,
                 # pre_delete_collection=True # Uncomment to wipe collection on init
             )
             self.llm = ChatGoogleGenerativeAI(
@@ -122,3 +125,47 @@ class LangchainDocManager:
             return {"message": "Vector store wiped successfully."}
         except Exception as e:
             raise RuntimeError(f"Failed to wipe vector store: {e}")
+
+    async def rerank_with_gemini(self, query: str, documents: List[Document], top_n: int = 5) -> List[Document]:
+        """
+        Rerank documents using Gemini based on their relevance to the query.
+        :param query: The query string.
+        :param documents: List of documents to rerank.
+        :param top_n: Number of top documents to return after reranking.
+        :return: List of reranked documents.
+        """
+        try:
+            if not documents:
+                raise ValueError("No documents provided for reranking.")
+
+            # Prepare the input for Gemini
+            context = "\n\n".join([f"Document {i+1}:\n{doc.page_content}" for i, doc in enumerate(documents)])
+            messages = [
+                ("system", "Rerank the following documents based on their relevance to the query."),
+                ("user", f"Query: {query}\n\nDocuments:\n{context}")
+            ]
+
+            # Get the reranked order from Gemini
+            response = ""
+            async for chunk in self.llm.astream(messages):
+                response += chunk.content
+
+            # Parse the response to extract the ranking
+            try:
+                # Extract document rankings from the response
+                ranked_docs = []
+                for i, doc in enumerate(documents):
+                    if f"Document {i+1}:" in response and "relevant" in response.lower():
+                        ranked_docs.append((i, doc))
+
+                # Sort documents based on their relevance
+                ranked_docs = sorted(ranked_docs, key=lambda x: response.index(f"Document {x[0]+1}"))
+                reranked_docs = [doc for _, doc in ranked_docs]
+
+                print("Reranked Documents:", reranked_docs)
+                return reranked_docs[:top_n]
+            except Exception:
+                raise ValueError(f"Failed to parse Gemini response for reranking: {response}")
+
+        except Exception as e:
+            raise RuntimeError(f"Failed to rerank documents with Gemini: {e}")

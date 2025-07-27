@@ -62,10 +62,10 @@ async def delete_knowledge(id: str):
 async def get_knowledge():
     """Retrieve metadata including document IDs for deletion."""
     try:
-        docs = manager.list_documents()
-        return {"documents": docs}  # Each doc should include 'id'
+        documents = await manager.list_documents()  # Ensure this is awaited
+        return {"documents": documents}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve knowledge: {str(e)}")
 
 @router.delete("/wipe")
 async def wipe_knowledge():
